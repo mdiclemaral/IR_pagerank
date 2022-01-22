@@ -52,7 +52,9 @@ def file_handler(file_name):
                 else:
                     edges[suf].append(pre)
         counter += 1
+
     return vertices, edges, limit
+
 
 '''
 Creates the transition matrix (p) for page rank algorithm. 
@@ -75,39 +77,67 @@ def create_transition_matrix(ver_edges, num_vertices, t):
             for n in range(num_vertices):
                 transition_matrix[vertex-1][n] = empty_vertex_edges
         else:  # If the vertex has edges, teleport with a probability  empty_teleport = t / num_vertices
-            full_edges = (1 - empty_teleport) * (1 / len(edges))
+            full_edges = (1 - t) * (1 / len(edges))
             for edge in edges:
                 transition_matrix[vertex-1][edge-1] += full_edges
 
     return transition_matrix
 
-def page_rank(transition_matrix, x, vertices):
 
-    #while True:
-    for i in range(2):
+'''
+Page-rank algorithm for reuters articles finding the PageRank scores of people mentioned in the reuters articles.
+Returns a sorted list of people and their page-rank score: list = [(person, score),..]
+'''
+def page_rank(transition_matrix, x, vertices):
+    while True:
         prev_x = x
         temp_x = []
-        for i in range(len(x)):
+        for k in range(len(x)):
             a = 0
-            for n in range(len(transition_matrix)):
-                a += transition_matrix[n][i] * x[i]
+            for i in range(len(x)):
+                a += (transition_matrix[i][k] * x[i])
             temp_x.append(a)
         x = temp_x
         if prev_x == x:
             break
 
-    page_ranks = {}
+    page_ranks = {}  # Dictionary for people and their page rank
     for vertex_id in range(len(x)):
         page_ranks[vertices[vertex_id + 1]] = x[vertex_id]
-    print(page_ranks)
+    sorted_ranks = sorted(page_ranks.items(), key=lambda a: a[1], reverse=True)
+    return sorted_ranks
+
+
+'''
+Prints the page rank scores of highest rated print_n people and their names on a txt file as well as the terminal.
+'''
+def printt(page_rank_scores, print_n):
+    with open('page_rank_scores.txt', 'w') as f:
+        for i in range(print_n):
+            out = 'Person:  ' + str(page_rank_scores[i][0])+ '    Score: '+ str(page_rank_scores[i][1])
+            f.write(out)
+            f.write('\n')
+
+    for i in range(print_n):
+        print('Person:  ', str(page_rank_scores[i][0]), '    Score: ', str(page_rank_scores[i][1]))
+
+
 
 def main():
-    vertices, edges, num_vertices = file_handler('data.txt')  # Reads the data
+
     t = 0.15  # Teleportation rate
+    print_n = 50 # Number of people to print the page rank scores
+
+
+    vertices, edges, num_vertices = file_handler('data.txt')  # Reads the data
+
     transition_matrix = create_transition_matrix(edges, num_vertices, t)
 
     x = [1/num_vertices] * num_vertices  # Starting x matrix for random walk in page_rank with uniform distr.
-    page_rank(transition_matrix, x, vertices)
+    page_rank_scores = page_rank(transition_matrix, x, vertices)
+    printt(page_rank_scores, print_n)
+
 
 if __name__ == '__main__':
+
     main()
