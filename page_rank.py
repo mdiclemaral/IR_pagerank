@@ -12,7 +12,7 @@ between two people if their names appear in the same news article. The resulting
 consists of 459 nodes and 1422 edges.
 
 '''
-
+import sys
 
 '''
 File handler for data.txt
@@ -134,11 +134,11 @@ def printt(page_rank_scores, print_n):
 
 def main():
 
+    file_name = sys.argv[1] #'data.txt'
+    print_n = int(sys.argv[2]) #50   # Number of people to print the page rank scores
     t = 0.15  # Teleportation rate
-    print_n = 50 # Number of people to print the page rank scores
 
-
-    vertices, edges, num_vertices = file_handler('data.txt')  # Reads the data
+    vertices, edges, num_vertices = file_handler(file_name)  # Reads the data
 
     transition_matrix = create_transition_matrix(edges, num_vertices, t)
 
